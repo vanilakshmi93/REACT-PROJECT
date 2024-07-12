@@ -54,7 +54,7 @@ function Movies() {
   return (
     <>
       <div className='text-2xl font-bold text-center m-8'>Trending Movies</div>
-      <div className='flex flex-wrap'>
+      <div className='flex flex-wrap justify-evenly'>
         {movieData.map((movie) => (
           <div key={movie.id} className='relative m-6'>
             <div
@@ -66,11 +66,13 @@ function Movies() {
               onMouseLeave={() => setHovered('')}
             >
               <div
-                className='text-2xl p-1 bg-gray-300 flex items-center text-center absolute top-2 rounded-xl right-2 w-[30px] h-[30px]'
+                className='text-2xl p-1 bg-gray-300 flex items-center justify-center absolute top-2 rounded-xl right-2 w-[30px] h-[30px]'
                 style={{ display: hovered === movie.id ? 'flex' : 'none' }}
                 onClick={() => (isAddedWatchlist(movie) ? removeWatchlist(movie) : addWatchlist(movie))}
-              >
-                {isAddedWatchlist(movie) ? '-' : '+'}
+              ><span>
+                  {isAddedWatchlist(movie) ? '-' : '+'}
+              </span>
+              
               </div>
               <div className='text-white font-bold text-center rounded-xl w-full bg-gray-700 bg-opacity-70'>
                 {movie.original_title}
