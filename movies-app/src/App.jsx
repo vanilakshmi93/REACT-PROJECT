@@ -1,47 +1,37 @@
-import { useState } from 'react'
-
-import './App.css'
-import NavBar from './components/NavBar'
-import Banner from './components/Banner'
-import Movies from './components/Movies'
-import { BrowserRouter, Route, Routes } from 'react-router-dom'
-import Watchlist from './components/WatchList'
+import { useState } from "react";
+import reactLogo from "./assets/react.svg";
+import viteLogo from "/vite.svg";
+import "./App.css";
+import NavBar from "./components/NavBar";
+import WatchList from "./components/WatchList";
+import Home from "./components/Home";
+import {Provider} from "react-redux"
+import { Routes, Route } from "react-router-dom";
+import store from "./redux/store"
+import WatchListContextWrapper from "./context/WatchListContext";
+//import User from "./components/User";
+//import UserRedux from "./components/UserRedux";
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [count, setCount] = useState(0);
 
   return (
-    <>
-    
-
-    <NavBar/>
-    <Routes >
-      <Route path="/" element = {
-        <>
-         <Banner />
-         <Movies />
-        </>
-
-      }>
-
-      </Route>
-
-      <Route path="/watchlist" element = {
-        
-       <Watchlist />
-        
-
-      }>
-
-      </Route>
-   
-    </Routes>
-     
-
-     
-    
-    </>
-  )
+    <WatchListContextWrapper>
+    {/*<Provider store={store}>*/ }
+    {/* <User/> */}
+   {/** <UserRedux/>*/} 
+       <NavBar />
+      <Routes>
+        <Route path="/" element={<Home />}></Route>
+        <Route path="/watchlist" element={<WatchList />}></Route>
+      </Routes> 
+      {/*</Provider>*/ }
+      </WatchListContextWrapper>
+  );
 }
 
-export default App
+export default App;
+
+     
+    
+

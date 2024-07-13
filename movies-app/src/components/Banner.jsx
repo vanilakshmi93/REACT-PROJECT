@@ -1,18 +1,35 @@
-import React from 'react';
+import React, { useEffect, useState } from "react";
+import axios from "axios";
 
-const Banner = () => {
+function Banner() {
+  const [bannerImage, setBannerImage] = useState("");
+  const [title, setTitle] = useState("");
+
+  useEffect(() => {
+    axios
+      .get(
+        "https://api.themoviedb.org/3/trending/movie/day?api_key=60d18d673bedf3d701f305ef746f6eef&language=en-US&page=1"
+      )
+      .then((response) => {
+        console.log("Films", response.data.results[0]);
+        const firstMovie = response.data.results[0];
+        const firstMovieTitle = firstMovie.title;
+        const firstMoviePoster = firstMovie.backdrop_path;
+        setBannerImage(
+          `https://image.tmdb.org/t/p/original${firstMoviePoster}`
+        );
+        setTitle(firstMovieTitle);
+      });
+  }, []);
   return (
     <div
-      className='h-[40vh] bg-cover bg-center md:h-[60vh] bg-no-repeat flex items-end'
+      className="h-[20vh] md:h-[75vh] bg-cover bg-center flex items-end"
       style={{
-        backgroundImage: `url('https://petapixel.com/assets/uploads/2023/11/recreate-cinematic-john-wick-movie-poster-feat-800x420.jpg')`
+        backgroundImage: `url(${bannerImage})`,
       }}
     >
-        <div className='text-xl md:text-3xl bg-gray-900 bg-opacity-50 text-white text-center p-4 w-full'>
-            <h3>John Wick</h3>
-        </div>
+      <div className="text-white w-full text-center text-2xl">{title}</div>
     </div>
-    
   );
 }
 

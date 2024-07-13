@@ -1,90 +1,82 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-import Pagination from './Pagination'; // Import as default import
+import React, { useState, useEffect, useContext } from "react";
+import Pagination from "./Pagination";
+import MovieCard from "./MovieCard";
+import axios from "axios";
+import paginationSlice from "../redux/paginationSlice";
+import { useDispatch, useSelector } from "react-redux";
+
+const paginationAction = paginationSlice.actions;
 
 function Movies() {
-  const [pageNumber, setPageNumber] = useState(1);
-  const [movieData, setMovieData] = useState([]);
-  const [watchlist, setWatchlist] = useState([]);
-  const [hovered, setHovered] = useState('');
+  const [movies, setMovies] = useState([]);
+  const [watchList, setWatchList] = useState([]);
+  const {pageNo} = useSelector((state)=>state.pagination);
+  const dispatch = useDispatch();
 
-  const prevPage = () => {
-    if (pageNumber > 1) {
-      setPageNumber((prev) => Math.max(prev - 1, 1));
-    }
-  };
+ useEffect(()=>{
+  const moviesFromLocalStorage = JSON.parse(localStorage.getItem('movies'))
+  if(moviesFromLocalStorage){
+    setWatchList(moviesFromLocalStorage)
+  }
+ },[]) 
 
-  const nextPage = () => {
-    setPageNumber((prev) => prev + 1);
-  };
+  const addToWatchList = (movieObj) => {
+    const updatedWatchList = [...watchList, movieObj]; // watchList.concat(movieObj)
+    setWatchList(updatedWatchList);
+    localStorage.setItem('movies',JSON.stringify(updatedWatchList))
+  }
 
-  const getTrendingMovies = () => {
-    axios
-      .get(`https://api.themoviedb.org/3/trending/movie/day?api_key=b5f5915d07cfe97d0a84ef4fd4717c06&page=${pageNumber}`)
-      .then((response) => {
-        setMovieData(response.data.results);
-      })
-      .catch((error) => {
-        console.error('Error fetching trending movies:', error);
-      });
-  };
+  const removeFromWatchList = (movieObj)=>{
+    let filteredMovies = watchList.filter((movie)=> {
+      return movie.id != movieObj.id
+     }) // return all those movies whose id is not equal to movieObj.id
+    setWatchList(filteredMovies)
+    localStorage.setItem('movies',JSON.stringify(filteredMovies))
+  }
+  console.log("watchlist",watchList)
 
   useEffect(() => {
-    getTrendingMovies();
-    const watchlistFromStorage = JSON.parse(localStorage.getItem('imdb') || '[]');
-    setWatchlist(watchlistFromStorage);
-  }, [pageNumber]);
+    axios
+      .get(
+        `https://api.themoviedb.org/3/trending/movie/day?api_key=60d18d673bedf3d701f305ef746f6eef&language=en-US&page=${pageNo}`
+      )
+      .then((response) => {
+        console.log("Films", response.data.results);
+        setMovies(response.data.results);
+      });
+  }, [pageNo]);
 
-  const addWatchlist = (movie) => {
-    const updatedWatchlist = [...watchlist, movie];
-    setWatchlist(updatedWatchlist);
-    localStorage.setItem('imdb', JSON.stringify(updatedWatchlist));
+  const handleNext = () => {
+    dispatch(paginationAction.handleNext());
   };
 
-  const removeWatchlist = (movie) => {
-    const updatedWatchlist = watchlist.filter((item) => item.id !== movie.id);
-    setWatchlist(updatedWatchlist);
-    localStorage.setItem('imdb', JSON.stringify(updatedWatchlist));
-  };
-
-  const isAddedWatchlist = (movie) => {
-    return watchlist.some((item) => item.id === movie.id);
+  const handlePrevious = () => {
+    dispatch(paginationAction.handlePrev());
   };
 
   return (
-    <>
-      <div className='text-2xl font-bold text-center m-8'>Trending Movies</div>
-      <div className='flex flex-wrap justify-evenly'>
-        {movieData.map((movie) => (
-          <div key={movie.id} className='relative m-6'>
-            <div
-              className='flex items-end w-[200px] bg-center h-[30vh] rounded-xl md:h-[40vh] md:w-[200px] hover:scale-110 duration-75'
-              style={{
-                backgroundImage: `url(https://image.tmdb.org/t/p/w500/${movie.poster_path})`,
-              }}
-              onMouseOver={() => setHovered(movie.id)}
-              onMouseLeave={() => setHovered('')}
-            >
-              <div
-                className='text-2xl p-1 bg-gray-300 flex items-center justify-center absolute top-2 rounded-xl right-2 w-[30px] h-[30px]'
-                style={{ display: hovered === movie.id ? 'flex' : 'none' }}
-                onClick={() => (isAddedWatchlist(movie) ? removeWatchlist(movie) : addWatchlist(movie))}
-              ><span>
-                  {isAddedWatchlist(movie) ? '-' : '+'}
-              </span>
-              
-              </div>
-              <div className='text-white font-bold text-center rounded-xl w-full bg-gray-700 bg-opacity-70'>
-                {movie.original_title}
-              </div>
-            </div>
-          </div>
-        ))}
+    <div>
+      <div className="text-2xl font-bold text-center m-5">
+        <h1>Trending Movies</h1>
       </div>
-      <div>
-        <Pagination pageNumberProp={pageNumber} onNext={nextPage} onPrev={prevPage} />
+      <div className="flex justify-evenly flex-wrap gap-8">
+        {movies.map((movieObj) => {
+          return (
+            <MovieCard
+              movieObj={movieObj}
+              addToWatchList={addToWatchList}
+              watchList={watchList}
+              removeFromWatchList={removeFromWatchList}
+            />
+          );
+        })}
       </div>
-    </>
+      <Pagination
+        nextPageFn={handleNext}
+        previousPageFn={handlePrevious}
+        pageNumber={pageNo}
+      />
+    </div>
   );
 }
 

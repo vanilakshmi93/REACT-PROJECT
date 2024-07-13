@@ -1,20 +1,18 @@
 
-import React from 'react';
+import React from "react";
 
-const Pagination = ({ pageNumberProp, onNext, onPrev }) => {
+function Pagination({ pageNumber, previousPageFn, nextPageFn}) {
   return (
-    <div className="flex justify-center">
-      <div onClick={onPrev} className='m-4 p-2 border-2 cursor-pointer'>
-        Previous
+    <div className="bg-gray-400 p-4 h-[50px] w-full mt-8 flex justify-center gap-2">
+      <div onClick={previousPageFn} className="px-8 hover:cursor-pointer">
+        <i className="fa-solid fa-arrow-left"></i>
       </div>
-      <div className='m-4 p-2 border-2'>
-        {pageNumberProp}
-      </div>
-      <div onClick={onNext} className='m-4 p-2 border-2 cursor-pointer'>
-        Next
+      <div>{pageNumber}</div>
+      <div onClick={nextPageFn} className="px-8 hover:cursor-pointer">
+        <i className="fa-solid fa-arrow-right"></i>
       </div>
     </div>
   );
-};
+}
 
-export default Pagination; // Default export
+export default Pagination;
